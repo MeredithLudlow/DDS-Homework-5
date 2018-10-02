@@ -1,0 +1,58 @@
+---
+title: "Homework 5"
+author: "Meredith Ludlow"
+date: "October 2, 2018"
+output: html_document
+---
+
+# Question 1
+
+```{r echo=TRUE}
+library(dplyr)
+# Read in the 2016 baby name data and name the variables.
+df <- read.table("yob2016.txt", sep = ";", header=FALSE)
+names(df) <- c("FirstName", "Gender", "NumberofChildren")
+# Show the summary and structure of data.
+summary(df)
+str(df)
+# Find and remove the misspelled name.
+df[grep("yyy$", df$FirstName),]
+y2016 <- slice(df, -212)
+```
+
+# Question 2
+
+```{r echo=TRUE}
+# Read in the 2015 baby name data and name the variables.
+y2015 <- read.table("yob2015.txt", sep = ",", header=FALSE)
+names(y2015) <- c("FirstName", "Gender", "NumberofChildren")
+# Display the last 10 rows.
+tail(y2015, 10)
+```
+
+It is interesting that the last ten names are all male names.
+
+```{r echo=TRUE}
+# Merge the y2016 and y2015 data sets.
+final <- merge(y2016, y2015, by = "FirstName")
+# See if any rows have no data.
+final[!(complete.cases(final)),]
+```
+
+# Question 3
+
+```{r echo=TRUE}
+# Add a new column that is the sum of 2016 and 2015.
+final$Total <- final$NumberofChildren.x + final$NumberofChildren.y
+# Find the number of children given a popular name.
+sum(final$Total)
+# Find the top ten most popular names.
+ranked <- arrange(final, desc(Total))
+ranked[1:10,c(1,6)]
+# Find the top 10 girls names and write them in a CSV file.
+girls <- ranked[grep("F", ranked$Gender.x),]
+girls_ranked <- arrange(girls, desc(Total))
+Top_10 <- girls_ranked[1:10, c(1,6)]
+Top_10
+write.csv(Top_10, file = "Top10GirlsNames.csv")
+```
